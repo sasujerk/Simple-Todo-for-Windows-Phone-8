@@ -19,12 +19,14 @@ using System.ComponentModel;
 namespace Simple_Todo_for_WP8
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// The main and only page of this app (might add functionality for multiple pages)
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        int taskCount;
-        bool editMode = false;
+        public int taskCount;
+        int leftTasks;
+        public bool editMode = false;
+        public bool deleteMode = false;
         public MainPage()
         {
             this.InitializeComponent();
@@ -71,12 +73,35 @@ namespace Simple_Todo_for_WP8
         {
         }
         
+        private void checkBoxStatusHandler(CheckBox checkbox)
+        {
+            checkbox.Checked += (sender, e) =>
+            {
+                leftTasks--;
+                displayTaskCounter.Text = Convert.ToString(leftTasks);
+            };
+            checkbox.Unchecked += (sender, e) =>
+            {
+                leftTasks++;
+                displayTaskCounter.Text = Convert.ToString(leftTasks);
+            };
+        }
+
+        private void attachDeleteEventHandler(CheckBox checkbox)
+        {
+
+        }
+
+        private void deleteModeHandler()
+        {
+
+        }
 
         private void textboxHandler(TextBox textbox)
         {
             textbox.KeyDown += (sender, e) =>
             {
-                if (e.Key == Windows.System.VirtualKey.Enter)
+                if (e.Key == Windows.System.VirtualKey.Enter && textbox.Text != "")
                 {
                     TaskStack.Height = TaskStack.Height + 75;
                     var checkbox = new CheckBox();
@@ -85,8 +110,11 @@ namespace Simple_Todo_for_WP8
                     TaskStack.Children.RemoveAt(taskCount);
                     TaskStack.Children.Add(checkbox);
                     addTaskButton.IsEnabled = true;
+                    checkBoxStatusHandler(checkbox);
+                    attachDeleteEventHandler(checkbox);
                     taskCount++;
-                    displayTaskCounter.Text = Convert.ToString(taskCount);
+                    leftTasks++;
+                    displayTaskCounter.Text = Convert.ToString(leftTasks);
                 }
             };
         }
@@ -98,6 +126,7 @@ namespace Simple_Todo_for_WP8
                 editMode = false;
                 editTaskButton.Icon = new SymbolIcon(Symbol.Edit);
                 editTaskButton.Label = "Edit Task";
+                addTaskButton.IsEnabled = true;
                 exitEditModeHandler();
             }
             else
@@ -105,6 +134,7 @@ namespace Simple_Todo_for_WP8
                 editMode = true;
                 editTaskButton.Icon = new SymbolIcon(Symbol.Accept);
                 editTaskButton.Label = "Accept changes";
+                addTaskButton.IsEnabled = false;
                 editModeHandler();
             }
 
@@ -122,8 +152,20 @@ namespace Simple_Todo_for_WP8
                     textbox.Text = (string)currCheckBox.Content;
                     textbox.Margin = currCheckBox.Margin;
                     TaskStack.Children.Add(textbox);
+                    textbox.KeyDown += (sender, e) =>
+                    {
+                        if (e.Key == Windows.System.VirtualKey.Enter)
+                        {
+                            editTaskButton.Focus(FocusState.Programmatic);
+                        }
+                    };
                 }
             }
+        }
+
+        private void Textbox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void exitEditModeHandler()
@@ -142,6 +184,25 @@ namespace Simple_Todo_for_WP8
                 currCheckBox.Content = checkboxesContent[index];
                 currCheckBox.Visibility = Visibility.Visible;
                 index++;
+            }
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void deleteTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (deleteMode)
+            {
+                deleteMode = false;
+                exitEditModeHandler();
+            }
+            else
+            {
+                deleteMode = true;
+                deleteModeHandler();
             }
         }
     }
