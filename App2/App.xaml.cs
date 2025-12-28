@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
-namespace App2
+namespace Simple_Todo_for_WP8
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

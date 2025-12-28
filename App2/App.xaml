@@ -1,7 +1,7 @@
 ﻿<Application
-    x:Class="App2.App"
+    x:Class="Simple_Todo_for_WP8.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:App2">
+    xmlns:local="using:Simple_Todo_for_WP8">
 
 </Application>

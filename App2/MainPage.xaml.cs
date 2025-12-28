@@ -16,7 +16,7 @@ using System.ComponentModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
-namespace App2
+namespace Simple_Todo_for_WP8
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -128,7 +128,21 @@ namespace App2
 
         private void exitEditModeHandler()
         {
-
+            var textboxes = TaskStack.Children.OfType<TextBox>().ToList();
+            List<string> checkboxesContent = new List<string>();
+            foreach(TextBox currTextBox in textboxes)
+            {
+                checkboxesContent.Add(currTextBox.Text);
+                TaskStack.Children.Remove(currTextBox);
+            }
+            var checkboxes = TaskStack.Children.OfType<CheckBox>().ToList();
+            int index = 0;
+            foreach(CheckBox currCheckBox in checkboxes)
+            {
+                currCheckBox.Content = checkboxesContent[index];
+                currCheckBox.Visibility = Visibility.Visible;
+                index++;
+            }
         }
     }
 }
