@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -87,14 +88,32 @@ namespace Simple_Todo_for_WP8
             };
         }
 
-        private void attachDeleteEventHandler(CheckBox checkbox)
+        private async void attachDeleteEventHandler(CheckBox checkbox)
         {
-
-        }
-
-        private void deleteModeHandler()
-        {
-
+            checkbox.Tapped += async (sender, e) =>
+            {
+                if (deleteMode)
+                {
+                    int currCheckBoxId = TaskStack.Children.IndexOf(checkbox);
+                    var warning = new MessageDialog($"You are about to delete task #{currCheckBoxId}. Are you sure?", "Confirm Action");
+                    warning.Commands.Add(new UICommand("Yes", null, 1));
+                    warning.Commands.Add(new UICommand("No", null, 0));
+                    warning.DefaultCommandIndex = 0;
+                    warning.CancelCommandIndex = 1;
+                    IUICommand result = await warning.ShowAsync();
+                    if((int)result.Id == 1)
+                    {
+                        if (!((bool)checkbox.IsChecked))
+                        {
+                            leftTasks--;
+                            displayTaskCounter.Text = Convert.ToString(leftTasks);
+                        }
+                        TaskStack.Children.Remove(checkbox);
+                        taskCount--;
+                        
+                    }
+                }
+            };
         }
 
         private void textboxHandler(TextBox textbox)
@@ -127,6 +146,7 @@ namespace Simple_Todo_for_WP8
                 editTaskButton.Icon = new SymbolIcon(Symbol.Edit);
                 editTaskButton.Label = "Edit Task";
                 addTaskButton.IsEnabled = true;
+                deleteTaskButton.IsEnabled = true;
                 exitEditModeHandler();
             }
             else
@@ -135,6 +155,7 @@ namespace Simple_Todo_for_WP8
                 editTaskButton.Icon = new SymbolIcon(Symbol.Accept);
                 editTaskButton.Label = "Accept changes";
                 addTaskButton.IsEnabled = false;
+                deleteTaskButton.IsEnabled = false;
                 editModeHandler();
             }
 
@@ -163,11 +184,6 @@ namespace Simple_Todo_for_WP8
             }
         }
 
-        private void Textbox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private void exitEditModeHandler()
         {
             var textboxes = TaskStack.Children.OfType<TextBox>().ToList();
@@ -187,22 +203,19 @@ namespace Simple_Todo_for_WP8
             }
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void deleteTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (deleteMode)
             {
                 deleteMode = false;
-                exitEditModeHandler();
+                editTaskButton.IsEnabled = true;
+                addTaskButton.IsEnabled = true;
             }
             else
             {
                 deleteMode = true;
-                deleteModeHandler();
+                editTaskButton.IsEnabled = false;
+                addTaskButton.IsEnabled = false;
             }
         }
     }
