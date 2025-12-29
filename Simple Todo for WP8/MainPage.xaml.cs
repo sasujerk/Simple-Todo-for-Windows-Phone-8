@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -19,12 +20,14 @@ using System.ComponentModel;
 namespace Simple_Todo_for_WP8
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// The main and only page of this app (might add functionality for multiple pages)
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        int taskCount;
-        bool editMode = false;
+        public int taskCount;
+        int leftTasks;
+        public bool editMode = false;
+        public bool deleteMode = false;
         public MainPage()
         {
             this.InitializeComponent();
@@ -71,12 +74,53 @@ namespace Simple_Todo_for_WP8
         {
         }
         
+        private void checkBoxStatusHandler(CheckBox checkbox)
+        {
+            checkbox.Checked += (sender, e) =>
+            {
+                leftTasks--;
+                displayTaskCounter.Text = Convert.ToString(leftTasks);
+            };
+            checkbox.Unchecked += (sender, e) =>
+            {
+                leftTasks++;
+                displayTaskCounter.Text = Convert.ToString(leftTasks);
+            };
+        }
+
+        private async void attachDeleteEventHandler(CheckBox checkbox)
+        {
+            checkbox.Tapped += async (sender, e) =>
+            {
+                if (deleteMode)
+                {
+                    int currCheckBoxId = TaskStack.Children.IndexOf(checkbox);
+                    var warning = new MessageDialog($"You are about to delete task #{currCheckBoxId}. Are you sure?", "Confirm Action");
+                    warning.Commands.Add(new UICommand("Yes", null, 1));
+                    warning.Commands.Add(new UICommand("No", null, 0));
+                    warning.DefaultCommandIndex = 0;
+                    warning.CancelCommandIndex = 1;
+                    IUICommand result = await warning.ShowAsync();
+                    if((int)result.Id == 1)
+                    {
+                        if (!((bool)checkbox.IsChecked))
+                        {
+                            leftTasks--;
+                            displayTaskCounter.Text = Convert.ToString(leftTasks);
+                        }
+                        TaskStack.Children.Remove(checkbox);
+                        taskCount--;
+                        
+                    }
+                }
+            };
+        }
 
         private void textboxHandler(TextBox textbox)
         {
             textbox.KeyDown += (sender, e) =>
             {
-                if (e.Key == Windows.System.VirtualKey.Enter)
+                if (e.Key == Windows.System.VirtualKey.Enter && textbox.Text != "")
                 {
                     TaskStack.Height = TaskStack.Height + 75;
                     var checkbox = new CheckBox();
@@ -85,8 +129,11 @@ namespace Simple_Todo_for_WP8
                     TaskStack.Children.RemoveAt(taskCount);
                     TaskStack.Children.Add(checkbox);
                     addTaskButton.IsEnabled = true;
+                    checkBoxStatusHandler(checkbox);
+                    attachDeleteEventHandler(checkbox);
                     taskCount++;
-                    displayTaskCounter.Text = Convert.ToString(taskCount);
+                    leftTasks++;
+                    displayTaskCounter.Text = Convert.ToString(leftTasks);
                 }
             };
         }
@@ -98,6 +145,8 @@ namespace Simple_Todo_for_WP8
                 editMode = false;
                 editTaskButton.Icon = new SymbolIcon(Symbol.Edit);
                 editTaskButton.Label = "Edit Task";
+                addTaskButton.IsEnabled = true;
+                deleteTaskButton.IsEnabled = true;
                 exitEditModeHandler();
             }
             else
@@ -105,6 +154,8 @@ namespace Simple_Todo_for_WP8
                 editMode = true;
                 editTaskButton.Icon = new SymbolIcon(Symbol.Accept);
                 editTaskButton.Label = "Accept changes";
+                addTaskButton.IsEnabled = false;
+                deleteTaskButton.IsEnabled = false;
                 editModeHandler();
             }
 
@@ -122,6 +173,13 @@ namespace Simple_Todo_for_WP8
                     textbox.Text = (string)currCheckBox.Content;
                     textbox.Margin = currCheckBox.Margin;
                     TaskStack.Children.Add(textbox);
+                    textbox.KeyDown += (sender, e) =>
+                    {
+                        if (e.Key == Windows.System.VirtualKey.Enter)
+                        {
+                            editTaskButton.Focus(FocusState.Programmatic);
+                        }
+                    };
                 }
             }
         }
@@ -142,6 +200,22 @@ namespace Simple_Todo_for_WP8
                 currCheckBox.Content = checkboxesContent[index];
                 currCheckBox.Visibility = Visibility.Visible;
                 index++;
+            }
+        }
+
+        private void deleteTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (deleteMode)
+            {
+                deleteMode = false;
+                editTaskButton.IsEnabled = true;
+                addTaskButton.IsEnabled = true;
+            }
+            else
+            {
+                deleteMode = true;
+                editTaskButton.IsEnabled = false;
+                addTaskButton.IsEnabled = false;
             }
         }
     }
