@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple Todo for WP8", "App2\Simple Todo for WP8.csproj", "{F882A8AB-849B-4350-857F-280435282D70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple Todo for WP8", "Simple Todo for WP8\Simple Todo for WP8.csproj", "{F882A8AB-849B-4350-857F-280435282D70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
