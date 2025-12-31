@@ -49,6 +49,14 @@ namespace Simple_Todo_for_WP8
             foreach (CheckBox checkbox in (App.Current as App).taskData)
             {
                 TaskStack.Children.Add(checkbox);
+                checkBoxStatusHandler(checkbox);
+                attachDeleteEventHandler(checkbox);
+                if(checkbox.IsChecked == false)
+                {
+                    leftTasks++;
+                    displayTaskCounter.Text = Convert.ToString(leftTasks);
+                }
+                TaskStack.Height += 75;
             }
             // TODO: If your application contains multiple pages, ensure that you are
             // handling the hardware Back button by registering for the
@@ -85,11 +93,13 @@ namespace Simple_Todo_for_WP8
             {
                 leftTasks--;
                 displayTaskCounter.Text = Convert.ToString(leftTasks);
+                saveTasks();
             };
             checkbox.Unchecked += (sender, e) =>
             {
                 leftTasks++;
                 displayTaskCounter.Text = Convert.ToString(leftTasks);
+                saveTasks();
             };
         }
 
@@ -236,7 +246,8 @@ namespace Simple_Todo_for_WP8
             int index = 0;
             foreach(CheckBox checkbox in checkboxes)
             {
-                diskTaskData.Values[Convert.ToString(index)] = checkbox.Content;
+                string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
+                diskTaskData.Values[Convert.ToString(index)] = dataStateValues;
                 index++;
             }
         }

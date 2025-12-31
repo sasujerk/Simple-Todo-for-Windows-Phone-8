@@ -145,7 +145,12 @@ namespace Simple_Todo_for_WP8
             foreach (KeyValuePair<string, object> saveValue in diskTaskData.Values)
             {
                 CheckBox checkbox = new CheckBox();
-                checkbox.Content = saveValue.Value;
+                string literal = (string)saveValue.Value;
+                int newlineCharIndex = literal.IndexOf('\n');
+                string content = literal.Substring(0, newlineCharIndex);
+                bool state = Convert.ToBoolean(literal.Substring(newlineCharIndex + 1));
+                checkbox.Content = content;
+                checkbox.IsChecked = state;
                 taskData.Add(checkbox);
             }
         }
