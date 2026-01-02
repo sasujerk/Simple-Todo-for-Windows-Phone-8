@@ -29,6 +29,7 @@ namespace Simple_Todo_for_WP8
         int leftTasks;
         public bool editMode = false;
         public bool deleteMode = false;
+        const int checkMargin = 10;
         public MainPage()
         {
             this.InitializeComponent();
@@ -56,7 +57,8 @@ namespace Simple_Todo_for_WP8
                     leftTasks++;
                     displayTaskCounter.Text = Convert.ToString(leftTasks);
                 }
-                TaskStack.Height += 75;
+                TaskStack.Height += checkbox.Height + checkMargin;
+                taskCount++;
             }
             // TODO: If your application contains multiple pages, ensure that you are
             // handling the hardware Back button by registering for the
@@ -73,7 +75,7 @@ namespace Simple_Todo_for_WP8
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {  
             var textbox = new TextBox();
-            Thickness margin = new Thickness(0, ((taskCount + 10)), 0, 0);
+            Thickness margin = new Thickness(0, ((taskCount + checkMargin)), 0, 0);
             textbox.Margin = margin;
             textbox.Width = TaskStack.Width;
             textbox.Name = $"textbox{taskCount}";
@@ -138,8 +140,8 @@ namespace Simple_Todo_for_WP8
             {
                 if (e.Key == Windows.System.VirtualKey.Enter && textbox.Text != "")
                 {
-                    TaskStack.Height = TaskStack.Height + 75;
                     var checkbox = new CheckBox();
+                    TaskStack.Height = TaskStack.Height + checkbox.Height + checkMargin;
                     checkbox.Content = textbox.Text;
                     checkbox.Margin = textbox.Margin;
                     TaskStack.Children.RemoveAt(taskCount);
@@ -210,10 +212,9 @@ namespace Simple_Todo_for_WP8
                 checkboxesContent.Add(currTextBox.Text);
                 TaskStack.Children.Remove(currTextBox);
             }
-            var checkboxes = TaskStack.Children.OfType<CheckBox>().ToList();
             saveTasks();
             int index = 0;
-            foreach(CheckBox currCheckBox in checkboxes)
+            foreach(CheckBox currCheckBox in (App.Current as App).taskData)
             {
                 currCheckBox.Content = checkboxesContent[index];
                 currCheckBox.Visibility = Visibility.Visible;
@@ -244,7 +245,7 @@ namespace Simple_Todo_for_WP8
             (App.Current as App).taskData = checkboxes;
             var diskTaskData = ApplicationData.Current.LocalSettings;
             int index = 0;
-            foreach(CheckBox checkbox in checkboxes)
+            foreach(CheckBox checkbox in (App.Current as App).taskData)
             {
                 string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
                 diskTaskData.Values[Convert.ToString(index)] = dataStateValues;
