@@ -212,10 +212,9 @@ namespace Simple_Todo_for_WP8
                 checkboxesContent.Add(currTextBox.Text);
                 TaskStack.Children.Remove(currTextBox);
             }
-            var checkboxes = TaskStack.Children.OfType<CheckBox>().ToList();
             saveTasks();
             int index = 0;
-            foreach(CheckBox currCheckBox in checkboxes)
+            foreach(CheckBox currCheckBox in (App.Current as App).taskData)
             {
                 currCheckBox.Content = checkboxesContent[index];
                 currCheckBox.Visibility = Visibility.Visible;
@@ -246,7 +245,7 @@ namespace Simple_Todo_for_WP8
             (App.Current as App).taskData = checkboxes;
             var diskTaskData = ApplicationData.Current.LocalSettings;
             int index = 0;
-            foreach(CheckBox checkbox in checkboxes)
+            foreach(CheckBox checkbox in (App.Current as App).taskData)
             {
                 string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
                 diskTaskData.Values[Convert.ToString(index)] = dataStateValues;
