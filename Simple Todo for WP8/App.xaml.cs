@@ -31,8 +31,6 @@ namespace Simple_Todo_for_WP8
     {
         private TransitionCollection transitions;
         public List<CheckBox> taskData { get; set; }
-
-        List<string> list = new List<string>();
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -140,9 +138,9 @@ namespace Simple_Todo_for_WP8
 
         public void loadData()
         {
-            var diskTaskData = ApplicationData.Current.LocalSettings;
+            var saveFile = ApplicationData.Current.LocalSettings;
             taskData = new List<CheckBox>();
-            foreach (KeyValuePair<string, object> saveValue in diskTaskData.Values)
+            foreach (KeyValuePair<string, object> saveValue in saveFile.Values)
             {
                 CheckBox checkbox = new CheckBox();
                 string literal = (string)saveValue.Value;

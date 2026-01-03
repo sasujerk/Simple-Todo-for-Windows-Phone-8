@@ -25,16 +25,15 @@ namespace Simple_Todo_for_WP8
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        public int taskCount;
-        int leftTasks;
-        public bool editMode = false;
-        public bool deleteMode = false;
-        const int stackMargin = 10;
+        private int taskCount = 0;
+        private int leftTasks = 0;
+        private const int stackMargin = 10;
+        private List<int> freeSpaces = new List<int>();
+        ApplicationDataContainer saveFile = ApplicationData.Current.LocalSettings;
+
         public MainPage()
         {
             this.InitializeComponent();
-            taskCount = 0;
-
             this.NavigationCacheMode = NavigationCacheMode.Required;
         }
 
@@ -49,16 +48,7 @@ namespace Simple_Todo_for_WP8
             (App.Current as App).loadData();
             foreach (CheckBox checkbox in (App.Current as App).taskData)
             {
-                TaskStack.Children.Add(checkbox);
-                checkBoxStatusHandler(checkbox);
-                attachHoldingEvent(checkbox);
-                if(checkbox.IsChecked == false)
-                {
-                    leftTasks++;
-                    displayTaskCounter.Text = Convert.ToString(leftTasks);
-                }
-                TaskStack.Height += checkbox.Height + stackMargin;
-                taskCount++;
+                initializeCheckBox(checkbox, true);
             }
             // TODO: If your application contains multiple pages, ensure that you are
             // handling the hardware Back button by registering for the
@@ -67,14 +57,44 @@ namespace Simple_Todo_for_WP8
             // this event is handled for you.
         }
 
-        private void initializeCheckBox(CheckBox checkbox)
+        private void initializeCheckBox(CheckBox checkbox, bool fromSaveFile)
         {
-
-        }
-
-        private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
+            //TODO: Fix the list holes problem (Possibly refactor to LinkedList)
+            if (freeSpaces.Count == 0) //Checks if there are no holes in the list
+            {
+                TaskStack.Children.Add(checkbox);
+            }
+            else
+            {
+                TaskStack.Children.Insert(freeSpaces[0] , checkbox);
+                freeSpaces.Remove(0);
+            }
+            checkBoxStatusHandler(checkbox);
+            attachHoldingEvent(checkbox);
+            if (checkbox.IsChecked == false)
+            {
+                leftTasks++;
+                displayTaskCounter.Text = Convert.ToString(leftTasks);
+            }
+            taskCount++;
+            if (!fromSaveFile)
+            {
+                if ((App.Current as App).taskData.Contains(checkbox))
+                {
+                    (App.Current as App).taskData.Remove(checkbox);
+                }
+                int dataIndex = TaskStack.Children.IndexOf(checkbox);
+                (App.Current as App).taskData.Insert(dataIndex, checkbox);
+                string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
+                string dictionaryDataIndex = Convert.ToString(dataIndex);
+                if (saveFile.Values.Keys.Contains(dictionaryDataIndex))
+                {
+                    saveFile.Values.Remove(dictionaryDataIndex);
+                }
+                saveFile.Values.Add(dictionaryDataIndex, dataStateValues);
+            }
+            checkbox.Content += Convert.ToString((App.Current as App).taskData.IndexOf(checkbox));
+            TaskStack.Height += checkbox.Height + stackMargin;
         }
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
@@ -86,12 +106,24 @@ namespace Simple_Todo_for_WP8
             textbox.Name = $"textbox{taskCount}";
             TaskStack.Children.Add(textbox);
             textbox.Focus(FocusState.Programmatic);
-            textboxHandler(textbox);
+            addCheckBox(textbox);
             addTaskButton.IsEnabled = false;
         }
 
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void addCheckBox(TextBox textbox)
         {
+            textbox.KeyDown += (sender, e) =>
+            {
+                if (e.Key == Windows.System.VirtualKey.Enter && textbox.Text != "")
+                {
+                    var checkbox = new CheckBox();
+                    checkbox.Content = textbox.Text;
+                    checkbox.Margin = textbox.Margin;
+                    TaskStack.Children.Remove(textbox);
+                    initializeCheckBox(checkbox, false);
+                    addTaskButton.IsEnabled = true;
+                }
+            };
         }
 
         private void attachHoldingEvent(CheckBox checkbox)
@@ -144,6 +176,7 @@ namespace Simple_Todo_for_WP8
                     checkbox.Content = textbox.Text;
                     TaskStack.Children.Remove(textbox);
                     checkbox.Visibility = Visibility.Visible;
+                    saveTask(checkbox);
                 }
             };
             textbox.LostFocus += (sender, e) => 
@@ -169,10 +202,11 @@ namespace Simple_Todo_for_WP8
                     leftTasks--;
                     displayTaskCounter.Text = Convert.ToString(leftTasks);
                 }
+                freeSpaces.Add(currCheckBoxId);
+                saveFile.Values.Remove(Convert.ToString(currCheckBoxId));
                 TaskStack.Children.Remove(checkbox);
+                (App.Current as App).taskData.Remove(checkbox);
                 taskCount--;
-                saveTasks();
-
             }
         }
         
@@ -182,51 +216,26 @@ namespace Simple_Todo_for_WP8
             {
                 leftTasks--;
                 displayTaskCounter.Text = Convert.ToString(leftTasks);
-                saveTasks();
+                saveTask(checkbox);
             };
             checkbox.Unchecked += (sender, e) =>
             {
                 leftTasks++;
                 displayTaskCounter.Text = Convert.ToString(leftTasks);
-                saveTasks();
+                saveTask(checkbox);
             };
         }
 
-        private void textboxHandler(TextBox textbox)
+        public void saveTask(CheckBox checkbox)
         {
-            textbox.KeyDown += (sender, e) =>
+            int index = (App.Current as App).taskData.IndexOf(checkbox);
+            if((App.Current as App).taskData.Contains(checkbox))
             {
-                if (e.Key == Windows.System.VirtualKey.Enter && textbox.Text != "")
-                {
-                    var checkbox = new CheckBox();
-                    TaskStack.Height = TaskStack.Height + checkbox.Height + stackMargin;
-                    checkbox.Content = textbox.Text;
-                    checkbox.Margin = textbox.Margin;
-                    TaskStack.Children.RemoveAt(taskCount);
-                    TaskStack.Children.Add(checkbox);
-                    addTaskButton.IsEnabled = true;
-                    attachHoldingEvent(checkbox);
-                    checkBoxStatusHandler(checkbox);
-                    saveTasks();
-                    taskCount++;
-                    leftTasks++;
-                    displayTaskCounter.Text = Convert.ToString(leftTasks);
-                }
-            };
-        }
-
-        public void saveTasks()
-        {
-            var checkboxes = TaskStack.Children.OfType<CheckBox>().ToList();
-            (App.Current as App).taskData = checkboxes;
-            var diskTaskData = ApplicationData.Current.LocalSettings;
-            int index = 0;
-            foreach(CheckBox checkbox in (App.Current as App).taskData)
-            {
-                string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
-                diskTaskData.Values[Convert.ToString(index)] = dataStateValues;
-                index++;
+                (App.Current as App).taskData.Remove(checkbox);
             }
+            (App.Current as App).taskData.Insert(index, checkbox);
+            string dataStateValues = checkbox.Content.ToString() + '\n' + checkbox.IsChecked.ToString();
+            saveFile.Values[Convert.ToString(index)] = dataStateValues;
         }
     }
 }
