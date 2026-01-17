@@ -35,25 +35,13 @@ namespace Simple_Todo_for_WP8
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Required;
         }
-
-        /// <summary>
-        /// Invoked when this page is about to be displayed in a Frame.
-        /// </summary>
-        /// <param name="e">Event data that describes how this page was reached.
-        /// This parameter is typically used to configure the page.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            // TODO: Prepare page for display here.
             (App.Current as App).loadData();
             foreach (CheckBox checkbox in (App.Current as App).taskData)
             {
                 initializeCheckBox(checkbox, true);
             }
-            // TODO: If your application contains multiple pages, ensure that you are
-            // handling the hardware Back button by registering for the
-            // Windows.Phone.UI.Input.HardwareButtons.BackPressed event.
-            // If you are using the NavigationHelper provided by some templates,
-            // this event is handled for you.
         }
 
         private void initializeCheckBox(CheckBox checkbox, bool fromSaveFile)
@@ -187,15 +175,13 @@ namespace Simple_Todo_for_WP8
                     leftTasks--;
                     displayTaskCounter.Text = Convert.ToString(leftTasks);
                 }
-                saveFile.Values.Remove(Convert.ToString(TaskStack.Children.IndexOf(checkbox)));
-                (App.Current as App).taskData.Remove(checkbox);
+                saveFile.Values.Clear(); //Cleaning the list. Not a good solution, i know
+                (App.Current as App).taskData.Clear();
                 TaskStack.Children.Remove(checkbox);
                 int index = 0; 
                 foreach (CheckBox currCheckbox in TaskStack.Children)
                 { //Reassigning the list and save file with updated indexes from TaskStack(prevents duplicate assignments)
-                    (App.Current as App).taskData.RemoveAt(index);
                     (App.Current as App).taskData.Insert(index, currCheckbox);
-                    saveFile.Values.Remove(Convert.ToString(index));
                     string dataStateValues = currCheckbox.Content.ToString() + '\n' + currCheckbox.IsChecked.ToString();
                     saveFile.Values.Add(Convert.ToString(index), dataStateValues);
                     index++;

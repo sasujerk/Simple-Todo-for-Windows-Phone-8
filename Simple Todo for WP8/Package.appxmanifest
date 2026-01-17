@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="simple-todo-for-WP8" Publisher="CN=NADIA" Version="1.0.0.0" />
+  <Identity Name="simple-todo-for-WP8" Publisher="CN=NADIA" Version="1.1.1.0" />
   <mp:PhoneIdentity PhoneProductId="82611c91-6306-4b20-bf26-89e9aaf95567" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Simple Todo for WP8</DisplayName>
