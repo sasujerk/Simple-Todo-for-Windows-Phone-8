@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="14a3ffb0-d179-4b95-a034-b4955a4339ee" Publisher="CN=NADIA" Version="1.0.0.0" />
-  <mp:PhoneIdentity PhoneProductId="14a3ffb0-d179-4b95-a034-b4955a4339ee" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="simple-todo-for-WP8" Publisher="CN=NADIA" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="82611c91-6306-4b20-bf26-89e9aaf95567" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Simple_Todo_for_WP8</DisplayName>
-    <PublisherDisplayName>NADIA</PublisherDisplayName>
+    <DisplayName>Simple Todo for WP8</DisplayName>
+    <PublisherDisplayName>alex-hisou</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>
@@ -16,7 +16,8 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Simple_Todo_for_WP8.App">
-      <m3:VisualElements DisplayName="Simple Todo for WP8" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="Simple Todo for WP8" ForegroundText="light" BackgroundColor="transparent">
+      <m3:VisualElements DisplayName="Simple Todo for WP8" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png" Description="Simple Todo for WP8" ForegroundText="light" BackgroundColor="transparent" ToastCapable="false">
+        <m3:LockScreen Notification="badge" BadgeLogo="Assets\BadgeLogo.png" />
         <m3:DefaultTile Wide310x150Logo="Assets\WideLogo.png" Square71x71Logo="Assets\Square71x71Logo.png">
         </m3:DefaultTile>
         <m3:SplashScreen Image="Assets\SplashScreen.png" />
